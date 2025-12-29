@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useBordersGame } from './hooks/useBordersGame';
 import { useCountryTranslation } from './hooks/useCountryTranslation';
 import { CountrySearch } from './components/CountrySearch';
+import { CountryMap } from './components/CountryMap';
 import { LanguageSelector } from './components/LanguageSelector';
 import { GAME_CONFIG } from './types/game';
 import './App.css';
@@ -120,6 +121,13 @@ function App() {
               </div>
             </div>
 
+            <CountryMap
+              targetCountry={currentCountry.name}
+              guessedBorders={correctGuesses}
+              allBorders={currentCountry.borders}
+              gameOver={true}
+            />
+
             {missedBorders.length > 0 && (
               <div className="missed-borders">
                 <h3>{t('gameOver.missedBorders')}</h3>
@@ -193,6 +201,13 @@ function App() {
               <span className="status-label">{t('game.wrongGuessesLeft')}</span>
             </div>
           </div>
+
+          <CountryMap
+            targetCountry={currentCountry.name}
+            guessedBorders={correctGuesses}
+            allBorders={currentCountry.borders}
+            gameOver={false}
+          />
 
           <CountrySearch
             onSelect={makeGuess}
