@@ -15,6 +15,8 @@ function App() {
     startGame,
     makeGuess,
     resetGame,
+    showOutlinesHint,
+    showNamesHint,
   } = useBordersGame();
 
   // Start screen
@@ -64,9 +66,25 @@ function App() {
     );
   }
 
-  const { currentCountry, guesses, correctGuesses, wrongGuesses, gameOver, won } = gameState;
+  const { currentCountry, guesses, correctGuesses, wrongGuesses, gameOver, won, showOutlines, namesHintLevel } = gameState;
   const bordersRemaining = currentCountry.borders.length - correctGuesses.length;
   const wrongAttemptsRemaining = GAME_CONFIG.maxWrongAttempts - wrongGuesses;
+
+  // Get missing borders for name hints
+  const missingBorders = currentCountry.borders.filter(
+    border => !correctGuesses.some(g => g.toLowerCase() === border.toLowerCase())
+  );
+
+  // Function to format country name with hint
+  const formatNameHint = (name: string, lettersToShow: number) => {
+    const translatedName = translateCountry(name);
+    if (lettersToShow >= translatedName.length) {
+      return translatedName;
+    }
+    const visible = translatedName.slice(0, lettersToShow);
+    const hidden = translatedName.slice(lettersToShow).replace(/[a-zA-Z\u00C0-\u024F]/g, '_');
+    return visible + hidden;
+  };
 
   // Game over screen
   if (gameOver) {
@@ -207,7 +225,35 @@ function App() {
             guessedBorders={correctGuesses}
             allBorders={currentCountry.borders}
             gameOver={false}
+            showOutlines={showOutlines}
           />
+
+          {namesHintLevel > 0 && missingBorders.length > 0 && (
+            <div className="names-hint">
+              {missingBorders.map((border) => (
+                <span key={border} className="hint-name">
+                  {formatNameHint(border, namesHintLevel)}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="hint-buttons">
+            <button
+              className="btn btn-hint"
+              onClick={showOutlinesHint}
+              disabled={showOutlines}
+            >
+              {t('hints.showOutlines')}
+            </button>
+            <button
+              className="btn btn-hint"
+              onClick={showNamesHint}
+              disabled={namesHintLevel >= 3}
+            >
+              {t('hints.namesHint')}
+            </button>
+          </div>
 
           <CountrySearch
             onSelect={makeGuess}

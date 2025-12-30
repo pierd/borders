@@ -16,6 +16,10 @@
     "found": "znalezione",
     "backToMenu": "Powrót do menu"
   },
+  "hints": {
+    "showOutlines": "Pokaż kontury",
+    "namesHint": "Podpowiedź nazw"
+  },
   "rules": {
     "title": "Jak grać",
     "rule1": "Otrzymasz nazwę kraju",

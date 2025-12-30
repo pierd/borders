@@ -16,6 +16,10 @@
     "found": "found",
     "backToMenu": "Back to Menu"
   },
+  "hints": {
+    "showOutlines": "Show outlines",
+    "namesHint": "Names hint"
+  },
   "rules": {
     "title": "How to Play",
     "rule1": "You'll be given a country",

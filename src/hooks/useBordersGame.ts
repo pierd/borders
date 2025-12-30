@@ -14,6 +14,8 @@ export interface GameState {
   wrongGuesses: number;
   gameOver: boolean;
   won: boolean;
+  showOutlines: boolean;
+  namesHintLevel: number; // 0 = no hint, 1-3 = letters shown
 }
 
 // Simple seeded random number generator
@@ -45,6 +47,8 @@ export function useBordersGame() {
       wrongGuesses: 0,
       gameOver: false,
       won: false,
+      showOutlines: false,
+      namesHintLevel: 0,
     });
   }, []);
 
@@ -98,10 +102,28 @@ export function useBordersGame() {
     setGameState(null);
   }, []);
 
+  const showOutlinesHint = useCallback(() => {
+    if (!gameState || gameState.gameOver || gameState.showOutlines) return;
+    setGameState({
+      ...gameState,
+      showOutlines: true,
+    });
+  }, [gameState]);
+
+  const showNamesHint = useCallback(() => {
+    if (!gameState || gameState.gameOver || gameState.namesHintLevel >= 3) return;
+    setGameState({
+      ...gameState,
+      namesHintLevel: gameState.namesHintLevel + 1,
+    });
+  }, [gameState]);
+
   return {
     gameState,
     startGame,
     makeGuess,
     resetGame,
+    showOutlinesHint,
+    showNamesHint,
   };
 }

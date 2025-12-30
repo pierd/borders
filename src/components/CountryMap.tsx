@@ -21,6 +21,7 @@ interface CountryMapProps {
   guessedBorders: string[];
   allBorders: string[];
   gameOver: boolean;
+  showOutlines?: boolean;
 }
 
 // Map game country names to TopoJSON names where they differ
@@ -124,7 +125,7 @@ function calculateBounds(features: GeoJSONFeature[]): { minX: number; minY: numb
   return { minX, minY, maxX, maxY };
 }
 
-export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver }: CountryMapProps) {
+export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver, showOutlines = false }: CountryMapProps) {
   const [geoData, setGeoData] = useState<GeoJSONData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -170,8 +171,12 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
       // Show all borders when game is over
       return [...new Set([targetCountry, ...allBorders])];
     }
+    if (showOutlines) {
+      // Show all borders when outline hint is used
+      return [...new Set([targetCountry, ...allBorders])];
+    }
     return countries;
-  }, [targetCountry, guessedBorders, allBorders, gameOver]);
+  }, [targetCountry, guessedBorders, allBorders, gameOver, showOutlines]);
 
   // All countries that will eventually be shown (for stable viewBox calculation)
   const allCountriesToConsider = useMemo(() => {
@@ -217,7 +222,7 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
   const features = useMemo(() => {
     if (!geoData) return [];
 
-    const countryFeatures: { feature: GeoJSONFeature; name: string; isTarget: boolean; isGuessed: boolean; isMissed: boolean }[] = [];
+    const countryFeatures: { feature: GeoJSONFeature; name: string; isTarget: boolean; isGuessed: boolean; isMissed: boolean; isOutlineHint: boolean }[] = [];
 
     for (const name of countriesToShow) {
       // Map the game name to TopoJSON name if different
@@ -234,13 +239,14 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
         const isTarget = name === targetCountry;
         const isGuessed = guessedBorders.includes(name);
         const isMissed = gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
+        const isOutlineHint = showOutlines && !gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
 
-        countryFeatures.push({ feature, name, isTarget, isGuessed, isMissed });
+        countryFeatures.push({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint });
       }
     }
 
     return countryFeatures;
-  }, [geoData, countriesToShow, targetCountry, guessedBorders, allBorders, gameOver]);
+  }, [geoData, countriesToShow, targetCountry, guessedBorders, allBorders, gameOver, showOutlines]);
 
   if (loading) {
     return (
@@ -257,11 +263,11 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
   return (
     <div className="country-map">
       <svg viewBox={viewBox} className="map-svg">
-        {features.map(({ feature, name, isTarget, isGuessed, isMissed }) => (
+        {features.map(({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint }) => (
           <path
             key={name}
             d={geometryToPath(feature.geometry)}
-            className={`country-path ${isTarget ? 'target' : ''} ${isGuessed ? 'guessed' : ''} ${isMissed ? 'missed' : ''}`}
+            className={`country-path ${isTarget ? 'target' : ''} ${isGuessed ? 'guessed' : ''} ${isMissed ? 'missed' : ''} ${isOutlineHint ? 'outline-hint' : ''}`}
           />
         ))}
       </svg>

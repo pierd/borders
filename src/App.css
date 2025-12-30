@@ -660,6 +660,54 @@ body {
   color: var(--text-primary);
 }
 
+/* Hint Buttons */
+.hint-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.btn-hint {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-hint:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.btn-hint:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Names Hint */
+.names-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.hint-name {
+  padding: 0.4rem 0.8rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
 /* Country Map */
 .country-map {
   width: 100%;
@@ -713,6 +761,14 @@ body {
   stroke: var(--error);
   stroke-width: 0.75;
   stroke-dasharray: 4 2;
+}
+
+.country-path.outline-hint {
+  fill: transparent;
+  stroke: var(--text-muted);
+  stroke-width: 0.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
 }
 
 /* Responsive */

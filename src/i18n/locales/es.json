@@ -16,6 +16,10 @@
     "found": "encontrados",
     "backToMenu": "Volver al menú"
   },
+  "hints": {
+    "showOutlines": "Mostrar contornos",
+    "namesHint": "Pista de nombres"
+  },
   "rules": {
     "title": "Cómo jugar",
     "rule1": "Se te dará un país",
