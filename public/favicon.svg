@@ -1,9 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="45" fill="none" stroke="#00d4aa" stroke-width="4"/>
-  <circle cx="50" cy="50" r="30" fill="none" stroke="#00d4aa" stroke-width="3"/>
-  <circle cx="50" cy="50" r="15" fill="none" stroke="#00d4aa" stroke-width="2"/>
-  <circle cx="50" cy="50" r="5" fill="#00d4aa"/>
-  <line x1="50" y1="0" x2="50" y2="100" stroke="#00d4aa" stroke-width="2" opacity="0.5"/>
-  <line x1="0" y1="50" x2="100" y2="50" stroke="#00d4aa" stroke-width="2" opacity="0.5"/>
+  <!-- Globe background -->
+  <circle cx="50" cy="50" r="45" fill="#1a2633"/>
+  
+  <!-- Globe outline -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="#00d4aa" stroke-width="3"/>
+  
+  <!-- Latitude lines -->
+  <ellipse cx="50" cy="50" rx="45" ry="15" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+  <ellipse cx="50" cy="30" rx="35" ry="10" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+  <ellipse cx="50" cy="70" rx="35" ry="10" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+  
+  <!-- Longitude/meridian lines -->
+  <ellipse cx="50" cy="50" rx="20" ry="45" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+  <ellipse cx="50" cy="50" rx="38" ry="45" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+  
+  <!-- Stylized continents/landmasses with border effect -->
+  <!-- Europe/Africa region -->
+  <path d="M52 15 Q58 20 56 28 Q62 32 58 40 Q65 45 60 55 Q58 65 52 75 Q48 80 45 85" 
+        fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Americas region -->
+  <path d="M30 25 Q25 35 28 45 Q22 55 26 65 Q24 72 28 78" 
+        fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Asia region -->
+  <path d="M65 22 Q75 28 78 38 Q82 42 76 50 Q80 55 75 60" 
+        fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Border crossing points (emphasized) -->
+  <circle cx="56" cy="28" r="3" fill="#00d4aa"/>
+  <circle cx="58" cy="40" r="3" fill="#00d4aa"/>
+  <circle cx="28" cy="45" r="3" fill="#00d4aa"/>
+  <circle cx="78" cy="38" r="3" fill="#00d4aa"/>
 </svg>
 
