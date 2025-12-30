@@ -41,6 +41,70 @@ const nameMapping: Record<string, string> = {
   "Western Sahara": "W. Sahara",
 };
 
+// Filter out overseas territories for certain countries to fix map scale
+// Returns true if the polygon should be KEPT
+function isMainlandPolygon(countryName: string, coords: number[][]): boolean {
+  if (countryName !== 'France') return true;
+
+  // France mainland bounding box (approximate)
+  // Latitude: ~42°N to ~51°N, Longitude: ~-5°W to ~10°E
+  const mainlandBounds = {
+    minLon: -10,
+    maxLon: 15,
+    minLat: 40,
+    maxLat: 52,
+  };
+
+  // Check if the centroid of the polygon is within mainland bounds
+  let sumLon = 0, sumLat = 0;
+  for (const [lon, lat] of coords) {
+    sumLon += lon;
+    sumLat += lat;
+  }
+  const centroidLon = sumLon / coords.length;
+  const centroidLat = sumLat / coords.length;
+
+  return (
+    centroidLon >= mainlandBounds.minLon &&
+    centroidLon <= mainlandBounds.maxLon &&
+    centroidLat >= mainlandBounds.minLat &&
+    centroidLat <= mainlandBounds.maxLat
+  );
+}
+
+// Filter a feature's geometry to only include mainland polygons
+function filterFeatureGeometry(feature: GeoJSONFeature, countryName: string): GeoJSONFeature {
+  if (countryName !== 'France') return feature;
+
+  if (feature.geometry.type === 'Polygon') {
+    // Single polygon - check if it's mainland
+    const coords = feature.geometry.coordinates as number[][][];
+    if (coords.length > 0 && isMainlandPolygon(countryName, coords[0])) {
+      return feature;
+    }
+    // Return empty geometry if not mainland
+    return {
+      ...feature,
+      geometry: { ...feature.geometry, coordinates: [] }
+    };
+  } else if (feature.geometry.type === 'MultiPolygon') {
+    // Multiple polygons - filter to only mainland ones
+    const coords = feature.geometry.coordinates as number[][][][];
+    const filteredCoords = coords.filter(polygon => {
+      if (polygon.length > 0) {
+        return isMainlandPolygon(countryName, polygon[0]);
+      }
+      return false;
+    });
+    return {
+      ...feature,
+      geometry: { ...feature.geometry, coordinates: filteredCoords }
+    };
+  }
+
+  return feature;
+}
+
 // Simple function to project coordinates (Mercator-like for display)
 function projectCoordinate(lon: number, lat: number, lonOffset: number = 0): [number, number] {
   // Simple equirectangular projection scaled for SVG
@@ -198,7 +262,7 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
         return featureName === topoName || featureName.toLowerCase() === topoName.toLowerCase();
       });
       if (feature) {
-        allFeatures.push(feature);
+        allFeatures.push(filterFeatureGeometry(feature, name));
       }
     }
 
@@ -237,13 +301,14 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
       });
 
       if (feature) {
+        const filteredFeature = filterFeatureGeometry(feature, name);
         const isTarget = name === targetCountry;
         const isGuessed = guessedBorders.includes(name);
         const isMissed = gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
         const isOutlineHint = showOutlines && !gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
         const isWrong = !gameOver && wrongGuesses.includes(name);
 
-        countryFeatures.push({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong });
+        countryFeatures.push({ feature: filteredFeature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong });
       }
     }
 
