@@ -22,6 +22,7 @@ interface CountryMapProps {
   allBorders: string[];
   gameOver: boolean;
   showOutlines?: boolean;
+  wrongGuesses?: string[];
 }
 
 // Map game country names to TopoJSON names where they differ
@@ -125,7 +126,7 @@ function calculateBounds(features: GeoJSONFeature[]): { minX: number; minY: numb
   return { minX, minY, maxX, maxY };
 }
 
-export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver, showOutlines = false }: CountryMapProps) {
+export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver, showOutlines = false, wrongGuesses = [] }: CountryMapProps) {
   const [geoData, setGeoData] = useState<GeoJSONData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -166,17 +167,17 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
 
   // Get the countries to display
   const countriesToShow = useMemo(() => {
-    const countries = [targetCountry, ...guessedBorders];
+    const countries = [targetCountry, ...guessedBorders, ...wrongGuesses];
     if (gameOver) {
       // Show all borders when game is over
       return [...new Set([targetCountry, ...allBorders])];
     }
     if (showOutlines) {
       // Show all borders when outline hint is used
-      return [...new Set([targetCountry, ...allBorders])];
+      return [...new Set([targetCountry, ...allBorders, ...wrongGuesses])];
     }
-    return countries;
-  }, [targetCountry, guessedBorders, allBorders, gameOver, showOutlines]);
+    return [...new Set(countries)];
+  }, [targetCountry, guessedBorders, allBorders, gameOver, showOutlines, wrongGuesses]);
 
   // All countries that will eventually be shown (for stable viewBox calculation)
   const allCountriesToConsider = useMemo(() => {
@@ -222,7 +223,7 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
   const features = useMemo(() => {
     if (!geoData) return [];
 
-    const countryFeatures: { feature: GeoJSONFeature; name: string; isTarget: boolean; isGuessed: boolean; isMissed: boolean; isOutlineHint: boolean }[] = [];
+    const countryFeatures: { feature: GeoJSONFeature; name: string; isTarget: boolean; isGuessed: boolean; isMissed: boolean; isOutlineHint: boolean; isWrong: boolean }[] = [];
 
     for (const name of countriesToShow) {
       // Map the game name to TopoJSON name if different
@@ -240,13 +241,14 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
         const isGuessed = guessedBorders.includes(name);
         const isMissed = gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
         const isOutlineHint = showOutlines && !gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
+        const isWrong = !gameOver && wrongGuesses.includes(name);
 
-        countryFeatures.push({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint });
+        countryFeatures.push({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong });
       }
     }
 
     return countryFeatures;
-  }, [geoData, countriesToShow, targetCountry, guessedBorders, allBorders, gameOver, showOutlines]);
+  }, [geoData, countriesToShow, targetCountry, guessedBorders, allBorders, gameOver, showOutlines, wrongGuesses]);
 
   if (loading) {
     return (
@@ -263,11 +265,11 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
   return (
     <div className="country-map">
       <svg viewBox={viewBox} className="map-svg">
-        {features.map(({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint }) => (
+        {features.map(({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong }) => (
           <path
             key={name}
             d={geometryToPath(feature.geometry)}
-            className={`country-path ${isTarget ? 'target' : ''} ${isGuessed ? 'guessed' : ''} ${isMissed ? 'missed' : ''} ${isOutlineHint ? 'outline-hint' : ''}`}
+            className={`country-path ${isTarget ? 'target' : ''} ${isGuessed ? 'guessed' : ''} ${isMissed ? 'missed' : ''} ${isOutlineHint ? 'outline-hint' : ''} ${isWrong ? 'wrong' : ''}`}
           />
         ))}
       </svg>

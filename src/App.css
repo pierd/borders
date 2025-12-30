@@ -763,6 +763,12 @@ body {
   stroke-dasharray: 4 2;
 }
 
+.country-path.wrong {
+  fill: var(--error-bg);
+  stroke: var(--error);
+  stroke-width: 0.75;
+}
+
 .country-path.outline-hint {
   fill: transparent;
   stroke: var(--text-muted);

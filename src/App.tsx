@@ -226,6 +226,7 @@ function App() {
             allBorders={currentCountry.borders}
             gameOver={false}
             showOutlines={showOutlines}
+            wrongGuesses={guesses.filter(g => !g.isCorrect).map(g => g.countryName)}
           />
 
           {namesHintLevel > 0 && missingBorders.length > 0 && (
