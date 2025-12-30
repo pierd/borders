@@ -3,6 +3,179 @@ export interface Country {
   borders: string[];
 }
 
+export type Continent = 'Europe' | 'Asia' | 'Africa' | 'North America' | 'South America';
+
+// Map each country to its continent
+const countryContinent: Record<string, Continent> = {
+  // Europe
+  "France": "Europe",
+  "Belgium": "Europe",
+  "Luxembourg": "Europe",
+  "Germany": "Europe",
+  "Switzerland": "Europe",
+  "Italy": "Europe",
+  "Monaco": "Europe",
+  "Spain": "Europe",
+  "Andorra": "Europe",
+  "Denmark": "Europe",
+  "Poland": "Europe",
+  "Czech Republic": "Europe",
+  "Austria": "Europe",
+  "Netherlands": "Europe",
+  "Portugal": "Europe",
+  "Gibraltar": "Europe",
+  "Slovenia": "Europe",
+  "San Marino": "Europe",
+  "Vatican City": "Europe",
+  "Slovakia": "Europe",
+  "Ukraine": "Europe",
+  "Belarus": "Europe",
+  "Lithuania": "Europe",
+  "Hungary": "Europe",
+  "Romania": "Europe",
+  "Serbia": "Europe",
+  "Croatia": "Europe",
+  "Liechtenstein": "Europe",
+  "Montenegro": "Europe",
+  "Bosnia and Herzegovina": "Europe",
+  "Bulgaria": "Europe",
+  "North Macedonia": "Europe",
+  "Kosovo": "Europe",
+  "Greece": "Europe",
+  "Albania": "Europe",
+  "Norway": "Europe",
+  "Sweden": "Europe",
+  "Finland": "Europe",
+  "Ireland": "Europe",
+  "United Kingdom": "Europe",
+  "Estonia": "Europe",
+  "Latvia": "Europe",
+  "Moldova": "Europe",
+  "Russia": "Europe", // Listed as Europe since most borders are European
+
+  // Asia
+  "Turkey": "Asia",
+  "Georgia": "Asia",
+  "Armenia": "Asia",
+  "Azerbaijan": "Asia",
+  "Kazakhstan": "Asia",
+  "Uzbekistan": "Asia",
+  "Turkmenistan": "Asia",
+  "Kyrgyzstan": "Asia",
+  "Tajikistan": "Asia",
+  "Afghanistan": "Asia",
+  "Pakistan": "Asia",
+  "India": "Asia",
+  "Nepal": "Asia",
+  "Bhutan": "Asia",
+  "Bangladesh": "Asia",
+  "Myanmar": "Asia",
+  "Thailand": "Asia",
+  "Laos": "Asia",
+  "Vietnam": "Asia",
+  "Cambodia": "Asia",
+  "Malaysia": "Asia",
+  "Brunei": "Asia",
+  "Indonesia": "Asia",
+  "Papua New Guinea": "Asia",
+  "East Timor": "Asia",
+  "China": "Asia",
+  "Mongolia": "Asia",
+  "North Korea": "Asia",
+  "South Korea": "Asia",
+  "Iran": "Asia",
+  "Iraq": "Asia",
+  "Kuwait": "Asia",
+  "Saudi Arabia": "Asia",
+  "Jordan": "Asia",
+  "Syria": "Asia",
+  "Israel": "Asia",
+  "Lebanon": "Asia",
+  "Palestine": "Asia",
+  "Qatar": "Asia",
+  "United Arab Emirates": "Asia",
+  "Oman": "Asia",
+  "Yemen": "Asia",
+
+  // Africa
+  "Morocco": "Africa",
+  "Egypt": "Africa",
+  "Libya": "Africa",
+  "Tunisia": "Africa",
+  "Algeria": "Africa",
+  "Western Sahara": "Africa",
+  "Mauritania": "Africa",
+  "Mali": "Africa",
+  "Niger": "Africa",
+  "Chad": "Africa",
+  "Sudan": "Africa",
+  "South Sudan": "Africa",
+  "Eritrea": "Africa",
+  "Ethiopia": "Africa",
+  "Djibouti": "Africa",
+  "Somalia": "Africa",
+  "Kenya": "Africa",
+  "Uganda": "Africa",
+  "Tanzania": "Africa",
+  "Rwanda": "Africa",
+  "Burundi": "Africa",
+  "Democratic Republic of the Congo": "Africa",
+  "Republic of the Congo": "Africa",
+  "Central African Republic": "Africa",
+  "Cameroon": "Africa",
+  "Nigeria": "Africa",
+  "Benin": "Africa",
+  "Togo": "Africa",
+  "Ghana": "Africa",
+  "Ivory Coast": "Africa",
+  "Liberia": "Africa",
+  "Sierra Leone": "Africa",
+  "Guinea": "Africa",
+  "Guinea-Bissau": "Africa",
+  "Senegal": "Africa",
+  "Gambia": "Africa",
+  "Burkina Faso": "Africa",
+  "Gabon": "Africa",
+  "Equatorial Guinea": "Africa",
+  "Angola": "Africa",
+  "Zambia": "Africa",
+  "Malawi": "Africa",
+  "Mozambique": "Africa",
+  "Zimbabwe": "Africa",
+  "Botswana": "Africa",
+  "Namibia": "Africa",
+  "South Africa": "Africa",
+  "Eswatini": "Africa",
+  "Lesotho": "Africa",
+
+  // North America
+  "Canada": "North America",
+  "United States": "North America",
+  "Mexico": "North America",
+  "Guatemala": "North America",
+  "Belize": "North America",
+  "Honduras": "North America",
+  "El Salvador": "North America",
+  "Nicaragua": "North America",
+  "Costa Rica": "North America",
+  "Panama": "North America",
+
+  // South America
+  "Colombia": "South America",
+  "Venezuela": "South America",
+  "Brazil": "South America",
+  "Peru": "South America",
+  "Ecuador": "South America",
+  "Guyana": "South America",
+  "Suriname": "South America",
+  "French Guiana": "South America",
+  "Bolivia": "South America",
+  "Paraguay": "South America",
+  "Argentina": "South America",
+  "Chile": "South America",
+  "Uruguay": "South America",
+};
+
 // Define all border pairs (each pair listed once)
 const borderPairs: [string, string][] = [
   // Europe
@@ -359,6 +532,32 @@ export const countries: Country[] = buildCountriesFromPairs(borderPairs);
 
 // Get list of all country names for search/validation
 export const countryNames: string[] = countries.map(c => c.name);
+
+// Get country's continent
+export function getCountryContinent(countryName: string): Continent | undefined {
+  return countryContinent[countryName];
+}
+
+// Get countries filtered by continent (only those with at least 2 borders within the continent)
+export function getCountriesByContinent(continent: Continent): Country[] {
+  const continentCountryNames = new Set(
+    Object.entries(countryContinent)
+      .filter(([, c]) => c === continent)
+      .map(([name]) => name)
+  );
+
+  return countries
+    .filter(c => continentCountryNames.has(c.name))
+    .map(c => ({
+      name: c.name,
+      // Only include borders that are also in the same continent
+      borders: c.borders.filter(b => continentCountryNames.has(b)),
+    }))
+    .filter(c => c.borders.length >= 2); // Must have at least 2 borders within continent
+}
+
+// List of all continents
+export const continents: Continent[] = ['Europe', 'Asia', 'Africa', 'North America', 'South America'];
 
 // Countries that have only 1 neighbor (might be too easy)
 export const easyCountries = countries.filter(c => c.borders.length === 1).map(c => c.name);

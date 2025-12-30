@@ -5,7 +5,16 @@ import { CountrySearch } from './components/CountrySearch';
 import { CountryMap } from './components/CountryMap';
 import { LanguageSelector } from './components/LanguageSelector';
 import { GAME_CONFIG } from './types/game';
+import { type Continent } from './data/countries';
 import './App.css';
+
+const continentEmojis: Record<Continent, string> = {
+  'Europe': '🇪🇺',
+  'Asia': '🌏',
+  'Africa': '🌍',
+  'North America': '🌎',
+  'South America': '🌎',
+};
 
 function App() {
   const { t } = useTranslation();
@@ -38,13 +47,40 @@ function App() {
 
         <main className="main">
           <div className="mode-selector">
-            <button className="mode-card" onClick={startGame}>
-              <div className="mode-icon">🎲</div>
+            <button className="mode-card" onClick={() => startGame()}>
+              <div className="mode-icon">🌐</div>
               <h2 className="mode-title">{t('game.play')}</h2>
               <p className="mode-description">
                 {t('game.playDescription')}
               </p>
             </button>
+
+            <div className="continent-buttons">
+              <div className="continent-buttons-row">
+                {(['Europe', 'Asia', 'Africa'] as const).map((continent) => (
+                  <button
+                    key={continent}
+                    className="continent-btn"
+                    onClick={() => startGame(continent)}
+                  >
+                    <span className="continent-emoji">{continentEmojis[continent]}</span>
+                    <span className="continent-name">{t(`continents.${continent}`)}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="continent-buttons-row">
+                {(['North America', 'South America'] as const).map((continent) => (
+                  <button
+                    key={continent}
+                    className="continent-btn"
+                    onClick={() => startGame(continent)}
+                  >
+                    <span className="continent-emoji">{continentEmojis[continent]}</span>
+                    <span className="continent-name">{t(`continents.${continent}`)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="rules-card">
@@ -172,7 +208,7 @@ function App() {
             </div>
 
             <div className="game-over-actions">
-              <button className="btn btn-primary" onClick={startGame}>
+              <button className="btn btn-primary" onClick={() => startGame(gameState.continent)}>
                 {t('gameOver.playAgain')}
               </button>
               <button className="btn btn-secondary" onClick={resetGame}>

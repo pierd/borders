@@ -46,6 +46,13 @@
     "pl": "Polski",
     "es": "Español"
   },
+  "continents": {
+    "Europe": "Europe",
+    "Asia": "Asia",
+    "Africa": "Africa",
+    "North America": "North America",
+    "South America": "South America"
+  },
   "countries": {
     "Afghanistan": "Afghanistan",
     "Albania": "Albania",

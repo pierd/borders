@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { countries, type Country } from '../data/countries';
+import { countries, getCountriesByContinent, type Country, type Continent } from '../data/countries';
 import { GAME_CONFIG } from '../types/game';
 
 export interface Guess {
@@ -16,6 +16,7 @@ export interface GameState {
   won: boolean;
   showOutlines: boolean;
   namesHintLevel: number; // 0 = no hint, 1-3 = letters shown
+  continent?: Continent; // Track which continent filter is active
 }
 
 // Simple seeded random number generator
@@ -26,11 +27,15 @@ function seededRandom(seed: number): () => number {
   };
 }
 
-function getRandomCountry(): Country {
+function getRandomCountry(continent?: Continent): Country {
   // Use current timestamp as seed for true randomness
   const random = seededRandom(Date.now());
-  // Filter countries to only those with at least 2 borders (more interesting)
-  const validCountries = countries.filter(c => c.borders.length >= 2);
+
+  // Get countries based on continent filter
+  const validCountries = continent
+    ? getCountriesByContinent(continent)
+    : countries.filter(c => c.borders.length >= 2);
+
   const index = Math.floor(random() * validCountries.length);
   return validCountries[index];
 }
@@ -38,8 +43,8 @@ function getRandomCountry(): Country {
 export function useBordersGame() {
   const [gameState, setGameState] = useState<GameState | null>(null);
 
-  const startGame = useCallback(() => {
-    const country = getRandomCountry();
+  const startGame = useCallback((continent?: Continent) => {
+    const country = getRandomCountry(continent);
     setGameState({
       currentCountry: country,
       guesses: [],
@@ -49,6 +54,7 @@ export function useBordersGame() {
       won: false,
       showOutlines: false,
       namesHintLevel: 0,
+      continent,
     });
   }, []);
 

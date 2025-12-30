@@ -235,6 +235,57 @@ body {
   color: var(--text-secondary);
 }
 
+/* Continent Buttons */
+.continent-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.continent-buttons-row {
+  display: contents;
+}
+
+.continent-buttons-row:last-child {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.continent-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  min-width: 80px;
+  flex: 1;
+  max-width: 120px;
+}
+
+.continent-btn:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+}
+
+.continent-emoji {
+  font-size: 1.25rem;
+}
+
+.continent-name {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
 /* Rules Card */
 .rules-card {
   background: var(--bg-card);
