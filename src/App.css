@@ -791,40 +791,41 @@ body {
 .country-path {
   fill: var(--bg-tertiary);
   stroke: var(--text-muted);
-  stroke-width: 0.5;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
   transition: fill 0.3s ease, stroke 0.3s ease;
 }
 
 .country-path.target {
   fill: var(--accent-primary);
   stroke: var(--accent-secondary);
-  stroke-width: 1;
+  stroke-width: 2px;
 }
 
 .country-path.guessed {
   fill: var(--success-bg);
   stroke: var(--success);
-  stroke-width: 0.75;
+  stroke-width: 1.5px;
 }
 
 .country-path.missed {
   fill: var(--error-bg);
   stroke: var(--error);
-  stroke-width: 0.75;
+  stroke-width: 1.5px;
   stroke-dasharray: 4 2;
 }
 
 .country-path.wrong {
   fill: var(--error-bg);
   stroke: var(--error);
-  stroke-width: 0.75;
+  stroke-width: 1.5px;
 }
 
 .country-path.outline-hint {
   fill: transparent;
   stroke: var(--text-muted);
-  stroke-width: 0.5;
-  stroke-dasharray: 3 3;
+  stroke-width: 1px;
+  stroke-dasharray: 4 4;
   opacity: 0.6;
 }
 
