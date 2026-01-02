@@ -95,6 +95,7 @@ const countryContinent: Record<string, Continent> = {
   "United Arab Emirates": "Asia",
   "Oman": "Asia",
   "Yemen": "Asia",
+  "Singapore": "Asia",
 
   // Africa
   "Morocco": "Africa",
@@ -324,6 +325,7 @@ const borderPairs: [string, string][] = [
   ["Vietnam", "Cambodia"],
   ["Malaysia", "Brunei"],
   ["Malaysia", "Indonesia"],
+  ["Malaysia", "Singapore"],
   ["Indonesia", "Papua New Guinea"],
   ["Indonesia", "East Timor"],
   ["China", "Russia"],
