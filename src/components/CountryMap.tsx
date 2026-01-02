@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface GeoJSONFeature {
   type: 'Feature';
@@ -191,9 +192,24 @@ function calculateBounds(features: GeoJSONFeature[]): { minX: number; minY: numb
 }
 
 export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver, showOutlines = false, wrongGuesses = [] }: CountryMapProps) {
+  const { t } = useTranslation();
   const [geoData, setGeoData] = useState<GeoJSONData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(2); // Initial zoom is 2x the target country
+
+  const handleZoomIn = useCallback(() => {
+    setZoomLevel(prev => Math.max(0.5, prev / 2));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoomLevel(prev => Math.min(8, prev * 2));
+  }, []);
+
+  // Reset zoom when target country changes
+  useEffect(() => {
+    setZoomLevel(2);
+  }, [targetCountry]);
 
   // Load GeoJSON data
   useEffect(() => {
@@ -243,45 +259,44 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
     return [...new Set(countries)];
   }, [targetCountry, guessedBorders, allBorders, gameOver, showOutlines, wrongGuesses]);
 
-  // All countries that will eventually be shown (for stable viewBox calculation)
-  const allCountriesToConsider = useMemo(() => {
-    return [...new Set([targetCountry, ...allBorders])];
-  }, [targetCountry, allBorders]);
-
-  // Calculate stable viewBox based on ALL countries (target + all borders)
+  // Calculate viewBox based on target country bounds with zoom factor
   const viewBox = useMemo(() => {
     if (!geoData) return '0 0 800 400';
 
-    const allFeatures: GeoJSONFeature[] = [];
+    // Find the target country feature
+    const topoName = nameMapping[targetCountry] || targetCountry;
+    const targetFeature = geoData.features.find(f => {
+      const featureName = f.properties.name;
+      if (!featureName) return false;
+      return featureName === topoName || featureName.toLowerCase() === topoName.toLowerCase();
+    });
 
-    for (const name of allCountriesToConsider) {
-      const topoName = nameMapping[name] || name;
-      const feature = geoData.features.find(f => {
-        const featureName = f.properties.name;
-        if (!featureName) return false;
-        return featureName === topoName || featureName.toLowerCase() === topoName.toLowerCase();
-      });
-      if (feature) {
-        allFeatures.push(filterFeatureGeometry(feature, name));
-      }
-    }
-
-    if (allFeatures.length === 0) {
+    if (!targetFeature) {
       return '0 0 800 400';
     }
 
-    const bounds = calculateBounds(allFeatures);
+    const filteredFeature = filterFeatureGeometry(targetFeature, targetCountry);
+    const bounds = calculateBounds([filteredFeature]);
     const width = bounds.maxX - bounds.minX;
     const height = bounds.maxY - bounds.minY;
 
-    const paddingX = width * 0.05;
-    const paddingY = height * 0.05;
+    // Calculate center of target country
+    const centerX = bounds.minX + width / 2;
+    const centerY = bounds.minY + height / 2;
 
-    const finalWidth = width + paddingX * 2;
-    const finalHeight = height + paddingY * 2;
+    // Apply zoom factor (2x means the viewBox is 2x the country size)
+    const zoomedWidth = width * zoomLevel;
+    const zoomedHeight = height * zoomLevel;
 
-    return `${bounds.minX - paddingX} ${bounds.minY - paddingY} ${finalWidth} ${finalHeight}`;
-  }, [geoData, allCountriesToConsider]);
+    // Add small padding
+    const paddingX = zoomedWidth * 0.05;
+    const paddingY = zoomedHeight * 0.05;
+
+    const finalWidth = zoomedWidth + paddingX * 2;
+    const finalHeight = zoomedHeight + paddingY * 2;
+
+    return `${centerX - finalWidth / 2} ${centerY - finalHeight / 2} ${finalWidth} ${finalHeight}`;
+  }, [geoData, targetCountry, zoomLevel]);
 
   // Get features for displayed countries (only the ones to show)
   const features = useMemo(() => {
@@ -329,6 +344,26 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
 
   return (
     <div className="country-map">
+      <div className="zoom-controls">
+        <button
+          className="zoom-btn"
+          onClick={handleZoomIn}
+          disabled={zoomLevel <= 0.5}
+          title={t('map.zoomIn')}
+          aria-label={t('map.zoomIn')}
+        >
+          +
+        </button>
+        <button
+          className="zoom-btn"
+          onClick={handleZoomOut}
+          disabled={zoomLevel >= 8}
+          title={t('map.zoomOut')}
+          aria-label={t('map.zoomOut')}
+        >
+          −
+        </button>
+      </div>
       <svg viewBox={viewBox} className="map-svg">
         {features.map(({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong }) => (
           <path

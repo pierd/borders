@@ -20,6 +20,10 @@
     "showOutlines": "Pokaż kontury",
     "namesHint": "Podpowiedź nazw"
   },
+  "map": {
+    "zoomIn": "Powiększ",
+    "zoomOut": "Pomniejsz"
+  },
   "rules": {
     "title": "Jak grać",
     "rule1": "Otrzymasz nazwę kraju",

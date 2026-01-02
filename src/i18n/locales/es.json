@@ -20,6 +20,10 @@
     "showOutlines": "Mostrar contornos",
     "namesHint": "Pista de nombres"
   },
+  "map": {
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar"
+  },
   "rules": {
     "title": "Cómo jugar",
     "rule1": "Se te dará un país",

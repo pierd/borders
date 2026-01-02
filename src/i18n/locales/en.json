@@ -20,6 +20,10 @@
     "showOutlines": "Show outlines",
     "namesHint": "Names hint"
   },
+  "map": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
+  },
   "rules": {
     "title": "How to Play",
     "rule1": "You'll be given a country",
