@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCountryTranslation } from '../hooks/useCountryTranslation';
+import countriesGeoJson from '../data/countries.geo.json';
 
 interface GeoJSONFeature {
   type: 'Feature';
@@ -27,20 +28,24 @@ interface CountryMapProps {
   wrongGuesses?: string[];
 }
 
-// Map game country names to TopoJSON names where they differ
+// Map game country names to GeoJSON names where they differ
 const nameMapping: Record<string, string> = {
   "United States": "United States of America",
-  "Czech Republic": "Czechia",
-  "Democratic Republic of the Congo": "Dem. Rep. Congo",
-  "Republic of the Congo": "Congo",
-  "Central African Republic": "Central African Rep.",
-  "South Sudan": "S. Sudan",
-  "Ivory Coast": "Côte d'Ivoire",
-  "Eswatini": "eSwatini",
-  "Bosnia and Herzegovina": "Bosnia and Herz.",
+  "Democratic Republic of the Congo": "Democratic Republic of the Congo",
+  "Republic of the Congo": "Republic of the Congo",
+  "Central African Republic": "Central African Republic",
+  "South Sudan": "South Sudan",
+  "Ivory Coast": "Ivory Coast",
+  "Eswatini": "Swaziland",
+  "Bosnia and Herzegovina": "Bosnia and Herzegovina",
   "North Macedonia": "Macedonia",
-  "East Timor": "Timor-Leste",
-  "Western Sahara": "W. Sahara",
+  "East Timor": "East Timor",
+  "Western Sahara": "Western Sahara",
+  "Tanzania": "United Republic of Tanzania",
+  "Serbia": "Republic of Serbia",
+  "Bahamas": "The Bahamas",
+  "Guinea-Bissau": "Guinea Bissau",
+  "Palestine": "West Bank",
 };
 
 // Filter out overseas territories for certain countries to fix map scale
@@ -193,11 +198,25 @@ function calculateBounds(features: GeoJSONFeature[]): { minX: number; minY: numb
 }
 
 export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver, showOutlines = false, wrongGuesses = [] }: CountryMapProps) {
+  // Use key-based reset by wrapping in internal component
+  return (
+    <CountryMapInternal
+      key={targetCountry}
+      targetCountry={targetCountry}
+      guessedBorders={guessedBorders}
+      allBorders={allBorders}
+      gameOver={gameOver}
+      showOutlines={showOutlines}
+      wrongGuesses={wrongGuesses}
+    />
+  );
+}
+
+function CountryMapInternal({ targetCountry, guessedBorders, allBorders, gameOver, showOutlines = false, wrongGuesses = [] }: CountryMapProps) {
   const { t } = useTranslation();
   const { translateCountry } = useCountryTranslation();
-  const [geoData, setGeoData] = useState<GeoJSONData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use bundled GeoJSON data (from world.geo.json, includes territories like French Guiana)
+  const geoData = countriesGeoJson as unknown as GeoJSONData;
   const [zoomLevel, setZoomLevel] = useState(2); // Initial zoom is 2x the target country
   const [tooltip, setTooltip] = useState<{ name: string; x: number; y: number } | null>(null);
 
@@ -231,46 +250,6 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
     if (event.target === event.currentTarget) {
       setTooltip(null);
     }
-  }, []);
-
-  // Reset zoom and tooltip when target country changes
-  useEffect(() => {
-    setZoomLevel(2);
-    setTooltip(null);
-  }, [targetCountry]);
-
-  // Load GeoJSON data
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadGeoData() {
-      try {
-        // Use Natural Earth 110m resolution for smaller file size
-        const response = await fetch(
-          'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',
-          { signal: controller.signal }
-        );
-
-        if (!response.ok) throw new Error('Failed to load map data');
-
-        const topoData = await response.json();
-
-        // Convert TopoJSON to GeoJSON
-        const { feature } = await import('topojson-client');
-        const geoJSON = feature(topoData, topoData.objects.countries) as unknown as GeoJSONData;
-
-        setGeoData(geoJSON);
-        setLoading(false);
-      } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          setError('Could not load map');
-          setLoading(false);
-        }
-      }
-    }
-
-    loadGeoData();
-    return () => controller.abort();
   }, []);
 
   // Get the countries to display
@@ -360,16 +339,8 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
     return countryFeatures;
   }, [geoData, countriesToShow, targetCountry, guessedBorders, allBorders, gameOver, showOutlines, wrongGuesses]);
 
-  if (loading) {
-    return (
-      <div className="country-map loading">
-        <div className="map-loader">Loading map...</div>
-      </div>
-    );
-  }
-
-  if (error || features.length === 0) {
-    return null; // Silently fail if map can't be loaded
+  if (features.length === 0) {
+    return null; // Silently fail if no features found
   }
 
   return (

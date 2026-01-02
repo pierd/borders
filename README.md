@@ -39,3 +39,7 @@ Push to `main` branch to trigger automatic deployment via GitHub Actions.
 - Fuse.js (fuzzy search)
 - i18next (internationalization)
 - CSS (custom styling, no framework)
+
+## Data Sources
+
+- Map data: [world.geo.json](https://github.com/johan/world.geo.json) - GeoJSON data for country boundaries (Public Domain)
