@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCountryTranslation } from '../hooks/useCountryTranslation';
 
 interface GeoJSONFeature {
   type: 'Feature';
@@ -193,10 +194,12 @@ function calculateBounds(features: GeoJSONFeature[]): { minX: number; minY: numb
 
 export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver, showOutlines = false, wrongGuesses = [] }: CountryMapProps) {
   const { t } = useTranslation();
+  const { translateCountry } = useCountryTranslation();
   const [geoData, setGeoData] = useState<GeoJSONData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(2); // Initial zoom is 2x the target country
+  const [tooltip, setTooltip] = useState<{ name: string; x: number; y: number } | null>(null);
 
   const handleZoomIn = useCallback(() => {
     setZoomLevel(prev => Math.max(0.5, prev / 2));
@@ -206,9 +209,34 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
     setZoomLevel(prev => Math.min(8, prev * 2));
   }, []);
 
-  // Reset zoom when target country changes
+  const handleCountryClick = useCallback((name: string, isClickable: boolean, event: React.MouseEvent) => {
+    if (!isClickable) return;
+
+    const rect = (event.currentTarget as Element).closest('.country-map')?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    setTooltip({ name, x, y });
+
+    // Auto-hide tooltip after 2 seconds
+    setTimeout(() => {
+      setTooltip(prev => prev?.name === name ? null : prev);
+    }, 2000);
+  }, []);
+
+  const handleMapClick = useCallback((event: React.MouseEvent) => {
+    // Hide tooltip when clicking on the map background
+    if (event.target === event.currentTarget) {
+      setTooltip(null);
+    }
+  }, []);
+
+  // Reset zoom and tooltip when target country changes
   useEffect(() => {
     setZoomLevel(2);
+    setTooltip(null);
   }, [targetCountry]);
 
   // Load GeoJSON data
@@ -302,7 +330,7 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
   const features = useMemo(() => {
     if (!geoData) return [];
 
-    const countryFeatures: { feature: GeoJSONFeature; name: string; isTarget: boolean; isGuessed: boolean; isMissed: boolean; isOutlineHint: boolean; isWrong: boolean }[] = [];
+    const countryFeatures: { feature: GeoJSONFeature; name: string; isTarget: boolean; isGuessed: boolean; isMissed: boolean; isOutlineHint: boolean; isWrong: boolean; isClickable: boolean }[] = [];
 
     for (const name of countriesToShow) {
       // Map the game name to TopoJSON name if different
@@ -322,8 +350,10 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
         const isMissed = gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
         const isOutlineHint = showOutlines && !gameOver && allBorders.includes(name) && !guessedBorders.includes(name) && !isTarget;
         const isWrong = !gameOver && wrongGuesses.includes(name);
+        // Clickable if it's a revealed country (target, guessed, missed, or wrong)
+        const isClickable = isTarget || isGuessed || isMissed || isWrong;
 
-        countryFeatures.push({ feature: filteredFeature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong });
+        countryFeatures.push({ feature: filteredFeature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong, isClickable });
       }
     }
 
@@ -364,12 +394,22 @@ export function CountryMap({ targetCountry, guessedBorders, allBorders, gameOver
           −
         </button>
       </div>
-      <svg viewBox={viewBox} className="map-svg">
-        {features.map(({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong }) => (
+      {tooltip && (
+        <div
+          className="map-tooltip"
+          style={{ left: tooltip.x, top: tooltip.y }}
+          onClick={() => setTooltip(null)}
+        >
+          {translateCountry(tooltip.name)}
+        </div>
+      )}
+      <svg viewBox={viewBox} className="map-svg" onClick={handleMapClick}>
+        {features.map(({ feature, name, isTarget, isGuessed, isMissed, isOutlineHint, isWrong, isClickable }) => (
           <path
             key={name}
             d={geometryToPath(feature.geometry)}
-            className={`country-path ${isTarget ? 'target' : ''} ${isGuessed ? 'guessed' : ''} ${isMissed ? 'missed' : ''} ${isOutlineHint ? 'outline-hint' : ''} ${isWrong ? 'wrong' : ''}`}
+            className={`country-path ${isTarget ? 'target' : ''} ${isGuessed ? 'guessed' : ''} ${isMissed ? 'missed' : ''} ${isOutlineHint ? 'outline-hint' : ''} ${isWrong ? 'wrong' : ''} ${isClickable ? 'clickable' : ''}`}
+            onClick={(e) => handleCountryClick(name, isClickable, e)}
           />
         ))}
       </svg>
