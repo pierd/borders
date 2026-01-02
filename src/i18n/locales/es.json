@@ -32,6 +32,9 @@
     "rule4": "Las respuestas incorrectas se muestran en rojo",
     "rule5": "Puedes equivocarte hasta {{count}} veces"
   },
+  "alsoLike": {
+    "title": "También te puede gustar"
+  },
   "gameOver": {
     "congratulations": "¡Felicidades!",
     "foundAll": "¡Encontraste los {{count}} vecinos de {{country}}!",

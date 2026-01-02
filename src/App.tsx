@@ -93,6 +93,19 @@ function App() {
               <li>{t('rules.rule5', { count: GAME_CONFIG.maxWrongAttempts })}</li>
             </ul>
           </div>
+
+          <div className="also-like-card">
+            <h3>{t('alsoLike.title')}</h3>
+            <a
+              href="https://city-coords.lessismore.studio/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="also-like-btn"
+            >
+              <span className="also-like-icon">📍</span>
+              <span>City Coords</span>
+            </a>
+          </div>
         </main>
 
         <footer className="footer">

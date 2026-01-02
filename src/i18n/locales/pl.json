@@ -32,6 +32,9 @@
     "rule4": "Błędne odpowiedzi są czerwone",
     "rule5": "Możesz pomylić się maksymalnie {{count}} razy"
   },
+  "alsoLike": {
+    "title": "Może ci się też spodobać"
+  },
   "gameOver": {
     "congratulations": "Gratulacje!",
     "foundAll": "Znalazłeś wszystkich {{count}} sąsiadów {{country}}!",

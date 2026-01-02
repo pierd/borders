@@ -32,6 +32,9 @@
     "rule4": "Wrong guesses show in red",
     "rule5": "You can make up to {{count}} wrong guesses"
   },
+  "alsoLike": {
+    "title": "You might also like"
+  },
   "gameOver": {
     "congratulations": "Congratulations!",
     "foundAll": "You found all {{count}} neighbors of {{country}}!",
