@@ -13,6 +13,7 @@
     "fuse.js": "^7.1.0",
     "i18next": "^25.7.3",
     "i18next-browser-languagedetector": "^8.2.0",
+    "lessismore-react": "github:pierd/lessismore-react",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-i18next": "^16.5.0",
