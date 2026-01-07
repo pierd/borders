@@ -6,7 +6,8 @@ import App from './App.tsx'
 import { PostHogProvider } from 'posthog-js/react'
 
 const options = {
-  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+  api_host: 'https://wieprz.vercel.app/eu',
+  ui_host: 'https://eu.posthog.com',
   defaults: '2025-11-30',
 } as const
 
