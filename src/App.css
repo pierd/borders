@@ -135,7 +135,6 @@ body {
   justify-content: center;
   padding: 1rem 1.5rem 2rem;
   position: relative;
-  z-index: 1;
 }
 
 /* Footer */
@@ -457,6 +456,11 @@ body {
   z-index: 100;
   max-height: 300px;
   overflow-y: auto;
+}
+
+.suggestions-list.upward {
+  top: auto;
+  bottom: calc(100% + 0.5rem);
 }
 
 .suggestion-item {

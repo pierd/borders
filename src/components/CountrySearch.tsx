@@ -15,8 +15,10 @@ export function CountrySearch({ onSelect, disabled, alreadyGuessed }: CountrySea
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const suggestionsRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (!disabled && inputRef.current) {
@@ -108,6 +110,20 @@ export function CountrySearch({ onSelect, disabled, alreadyGuessed }: CountrySea
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Check if suggestions should open upward
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      const inputRect = inputRef.current.getBoundingClientRect();
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const spaceBelow = viewportHeight - inputRect.bottom;
+      const spaceAbove = inputRect.top;
+      const suggestionsHeight = Math.min(300, suggestions.length * 50); // Approximate height
+
+      // Open upward if not enough space below but enough above
+      setOpenUpward(spaceBelow < suggestionsHeight && spaceAbove > spaceBelow);
+    }
+  }, [isOpen, suggestions.length]);
+
   return (
     <div className="search-container" ref={containerRef}>
       <div className="search-input-wrapper">
@@ -129,7 +145,10 @@ export function CountrySearch({ onSelect, disabled, alreadyGuessed }: CountrySea
       </div>
 
       {isOpen && suggestions.length > 0 && (
-        <ul className="suggestions-list">
+        <ul
+          className={`suggestions-list ${openUpward ? 'upward' : ''}`}
+          ref={suggestionsRef}
+        >
           {suggestions.map((country, index) => (
             <li
               key={country}
