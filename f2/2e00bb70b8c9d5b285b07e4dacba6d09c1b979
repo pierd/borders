@@ -1,0 +1,23 @@
+index.html
+  s_008d5f342946d8::t_b70d3866f7c4af 14
+vite.config.ts
+  s_008d5f342946d8::t_15b5b8ec4dc8e1 3,7-42
+package.json
+  s_008d5f342946d8::t_e14d26000fe393 37-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "f22e00bb70b8c9d5b285b07e4dacba6d09c1b979",
+  "prompts": {},
+  "sessions": {
+    "s_008d5f342946d8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_152c7f062ffee0Fh4w1yxhSodr",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Kuba Jaroszewski <jakub.jaroszewski@gmail.com>"
+    }
+  }
+}
